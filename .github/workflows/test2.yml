@@ -1,4 +1,4 @@
-name: 'test'
+name: test
 on:
   push:
     branches: [ master ]
@@ -10,13 +10,13 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - uses: actions/setup-node@v1
-      name: 'setup node'
+      name: setup node
       with:
         node-version: '13.x'
 
-    - name: 'install'
+    - name: install
       run: npm i
 
-    - name: 'test'
+    - name: test
       run: npm run test
 
