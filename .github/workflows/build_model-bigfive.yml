@@ -1,0 +1,82 @@
+
+name: build-model-bigfive
+
+on:
+  workflow_dispatch:
+
+
+env:
+  TAG: "bigfive-${GIT_BRANCH}-${BUILD_NUMBER}"
+  VERSION: "${GIT_BRANCH.replaceAll('.*/', '')}-${BUILD_NUMBER}"
+  REPO: env.GIT_URL.replaceFirst(/https:\/\//, "")
+  pkg: "bigfive"
+  REGISTRY: "registry.junglejobs.ru"
+  VERSION: "manual"
+
+
+#  DOCKER_CREDS: credentials('docker_registry')
+#  IMAGE_TAG: ${GITHUB_REF##*/}
+#  IMAGE: "registry.junglejobs.ru/sever/models"
+#  DOCKER_CREDS_USR: ${{ secrets.DOCKER_CREDS_USR }}
+#  DOCKER_CREDS_PSW: ${{ secrets.DOCKER_CREDS_PSW }}
+
+jobs:
+  build:
+    runs-on:
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Generate build number
+        uses: einaregilsson/build-number@v2
+        with:
+          token: ${{secrets.github_token}}
+
+      - name: prepare_build
+        run: |
+          docker login -u "$DOCKER_CREDS_USR" -p "$DOCKER_CREDS_PSW" "$REGISTRY"
+          echo "version: ${VERSION}" >./buildinfo.yml
+          docker pull "$REGISTRY/sever/models:stage"
+          docker tag "$REGISTRY/sever/models:stage" models
+      #    local lst
+      #    lst=$(docker ps -q --filter label=ai.sever.project=models)
+      #    [ -z "$lst" ] || docker kill $lst
+      #    lst=$(docker ps -q -a --filter label=ai.sever.project=models)
+      #    [ -z "$lst" ] || docker rm $lst
+
+
+      - name: build
+        run: |
+          docker build --tag "${pkg}-src" --build-arg pkg="$pkg" --target src .
+          docker build --tag "${pkg}" --build-arg pkg="$pkg"  .
+          docker tag "${pkg}-src" "$REGISTRY/sever/${pkg}-src:$VERSION"
+          docker tag "${pkg}" "$REGISTRY/sever/${pkg}:$VERSION"
+#          docker push "$REGISTRY/sever/${pkg}-src:$VERSION"
+#          docker push "$REGISTRY/sever/${pkg}:$VERSION"
+
+
+      - name: prepare_tests
+        run: |
+          docker-compose up -d "${pkg}-src"
+
+#      - name: unittests
+#        run: |
+#          docker-compose exec -T "${pkg}-src" /opt/code/docked_model/cmd.sh \
+#              indocker_test_model $pkg \
+#              || exit_code=$?
+#          local copy_to="$ROOT/working_dir/tests_output/$pkg"
+#          mkdir -p "$copy_to"
+#          rm -Rf "$copy_to"
+#          docker cp "${pkg}-src:/opt/code/$pkg/tests_output" "$copy_to"
+#          exit $exit_code
+
+#      - name: deploy_stage
+#        run: |
+        #      add_tag $pkg "$VERSION" $tag
+#          docker pull "${REGISTRY}/sever/${pkg}:${tag}"
+#          docker tag  "${REGISTRY}/sever/${pkg}:${tag}" "${REGISTRY}/sever/${img}:${new_tag}"
+#          docker push "${REGISTRY}/sever/${pkg}:${new_tag}"
+        #      pull_image_at_host $pkg $host $tag
+#          docker pull "${REGISTRY}/sever/$pkg:$tag"
+        #      update_at_host $pkg $host
+        #  ssh_cmd "$host" /etc/junglejobs/mlservice/cmd.sh update $pkg
