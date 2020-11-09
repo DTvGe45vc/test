@@ -34,7 +34,7 @@ jobs:
 
       - name: prepare_build
         run: |
-          docker login -u "$DOCKER_CREDS_USR" -p "$DOCKER_CREDS_PSW" "$REGISTRY"
+          docker login -u "$DOCKER_CREDS_USR" -p "$DOCKER_CREDS_PSW" registry.junglejobs.ru
           echo "version: ${VERSION}" >./buildinfo.yml
           docker pull "$REGISTRY/sever/models:stage"
           docker tag "$REGISTRY/sever/models:stage" models
