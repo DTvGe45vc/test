@@ -11,7 +11,7 @@ env:
   REPO: env.GIT_URL.replaceFirst(/https:\/\//, "")
   pkg: "bigfive"
   REGISTRY: "registry.junglejobs.ru"
-  VERSION: "manual"
+#  VERSION: "manual"
 
 
 #  DOCKER_CREDS: credentials('docker_registry')
