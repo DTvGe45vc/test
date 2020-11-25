@@ -10,6 +10,10 @@ on:
   pull_request:
     branches: [ master ]
 
+env:
+  IMAGE_TAG: ${GITHUB_REF##*/}
+  TEST: "testing"
+
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
@@ -32,4 +36,5 @@ jobs:
           echo Add other actions to build,
           echo test, and deploy your project.
           pwd
-          ls -la
+          echo its my test | sed "s/test/"${GITHUB_REF##*/}"/g"
+          echo its my test | sed "s/test/"${IMAGE_TAG}"/g"
