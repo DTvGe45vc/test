@@ -36,5 +36,5 @@ jobs:
           echo Add other actions to build,
           echo test, and deploy your project.
           pwd
-          echo its my test | sed 's/test/'${GITHUB_REF##*/}'/g'
-          echo its my test | sed 's/test/'${IMAGE_TAG}'/g'
+          echo "its my test" | sed 's/test/'${GITHUB_REF##*/}'/g'
+          echo "its my test" | sed 's/test/'${IMAGE_TAG}'/g'
